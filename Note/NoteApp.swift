@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct NoteApp: App {
+    @ObservedObject private var data = NoteData()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Note(notes: $data.notesModel) {
+                data.save()
+            }
+                .onAppear {
+                    data.load()
+                }
         }
     }
 }
