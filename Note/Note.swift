@@ -19,8 +19,8 @@ struct Note: View {
     
     // MARK: - Body
     var body: some View {
-        NavigationView {
-            ZStack {
+        ZStack {
+            NavigationView {
                 if notes.isEmpty {
                     VStack {
                         Text("Please touch,\nif you want to add a note.")
@@ -111,11 +111,13 @@ struct Note: View {
                     }
                 }
             }
+            .onChange(of: scenePhase) { phase in
+                if phase == .inactive { saveAction() }
+            }
+
         }
-        .zIndex(0.9)
-        .onChange(of: scenePhase) { phase in
-            if phase == .inactive { saveAction() }
-        }
+//        .zIndex(0.9)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     private func binding(for note: Notes) -> Binding<Notes> {
         guard let noteIndex = notes.firstIndex(where: {$0.id == note.id}) else {
@@ -150,8 +152,8 @@ struct Notes: Codable, Identifiable {
 extension Notes {
     static var data: [Notes] {
         [
-            Notes(title: "Note 1"),
-            Notes(title: "Note 2")
+//            Notes(title: "Note 1"),
+//            Notes(title: "Note 2")
         ]
     }
 }
