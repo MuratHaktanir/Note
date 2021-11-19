@@ -10,59 +10,152 @@ import SwiftUI
 
 struct NoteListView: View {
     // MARK: - Properties
-    @Environment(\.colorScheme) var colorScheme
-    @Binding var notes: [Notes]
-    @Binding var isPresented: Bool
-    @Binding var newTitle: Notes.Data
-    @State private var notificationContent : UNNotificationContent?
-    @AppStorage("showDoneList") var showDoneList = false
+    @Environment(\.colorScheme)         var colorScheme
+    @Binding                            var notes               : [Notes]
+    @Binding                            var isPresented         : Bool
+    @Binding                            var newTitle            : Notes.Data
+    @State                      private var notificationContent : UNNotificationContent?
+    
+    @AppStorage("sort")                 var sort                = 0
+    @State                      private var showDoneList        = false
+    @State                      private var sortByTitle         = false
+    @State                      private var sortByManual        = true
+    @State                      private var everyNote           = false
+    @State                              var editMode: EditMode  = .inactive
+                                        var sortTitle           : [Notes] {
+                                            get { notes.sorted(by: {$0.title < $1.title})}
+                                            set { notes = newValue}
+                                        }
+    
     
     // MARK: - Body
     var body: some View {
+        
         let notiName = "muradi"
         let pub = NotificationCenter.default.publisher(
             for: Notification.Name(notiName))
+        
+//        UITableView.appearance().backgroundColor = .clear // tableview background
+//        UITableViewCell.appearance().backgroundColor = .clear // cell background
+
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .bottom)) {
             List {
-                Section(header: Text(notes.isEmpty ? "" : "Not yet")) {
-                    ForEach(notes) { note in
-                        if note.isComplete == false {
-                            NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                NoteRow(note: note)
-                            }
-                        }
-                    }
-                }
-                if showDoneList {
-                    withAnimation {
-                        Section(header: Text("Done")) {
-                            ForEach(notes) { note in
-                                if note.isComplete == true {
+                if sort == 0 {
+                    Section(header: Text("Sort by Manual")) {
+                        ForEach(notes) { note in
+                            if showDoneList {
+                                if note.isComplete {
+                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                        NoteRow(note: note)
+                                    }
+                                    
+                                }
+                                    
+                            }else {
+                                if note.isComplete == false {
                                     NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                         NoteRow(note: note)
                                     }
                                 }
                             }
                         }
+//                        .onDelete(perform: deleteItems)
+                        .onDelete { (index) in
+                            guard let firstIndex = index.first else {return}
+                            self.removeItem(for: notes[firstIndex].id)
+                        }
+                        .onMove(perform: moveRows)
+                    }
+                }
+                if sort == 1 {
+                    Section(header: Text("Sort by Title")) {
+                        ForEach(sortTitle) { note in
+                            if showDoneList {
+                                if note.isComplete {
+                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                        NoteRow(note: note)
+                                    }
+                                }
+                            }else {
+                                if note.isComplete == false {
+                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                        NoteRow(note: note)
+                                    }
+                                    
+                                }
+                            }
+                        }
+//                        .onDelete(perform: deleteItems)
+                        .onDelete { (index) in
+                            guard let firstIndex = index.first else {return}
+                            self.removeItem(for: notes[firstIndex].id)
+                        }
+                    }
+                }
+                
+                if sort == 2 {
+                    Section(header: Text("All notes")) {
+                        ForEach(sortTitle) { note in
+                            NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                NoteRow(note: note)
+                            }
+                        }
+//                        .onDelete(perform: self.deleteItems)
+                        .onDelete { (index) in
+                            guard let firstIndex = index.first else {return}
+                            self.removeItem(for: notes[firstIndex].id)
+                        }
                     }
                 }
             }
-            
+            .animation(.default, value: sort)
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Notes")
+            .listRowBackground(Color.primary)
+//            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
+            // MARK: - Toolbar
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation {
-                            self.showDoneList.toggle()
+                    Menu {
+                        Menu {
+                            Picker("", selection: $sort) {
+                                Button(action: {
+                                    sortByManual.toggle()
+                                }, label: {Text("Manual")}).tag(0)
+                                Button(action: {
+                                    sortByTitle.toggle()
+                                }, label: {Text("Title")}).tag(1)
+                                Button(action: {
+                                    everyNote.toggle()
+                                }, label: {
+                                    Text("All")
+                                }).tag(2)
+                            }
+                        }label: {
+                            Label("Sort by: ", systemImage: "arrow.up.arrow.down.circle")
                         }
-                    }, label: {
-                        Image(systemName: self.showDoneList ? "checkmark.circle" : "circle")
-                            .foregroundColor(showDoneList ? .green : .red)
+                        
+                        Button(action: {
+                            withAnimation(.spring()) {
+                                showDoneList.toggle()
+                            }
+                        }, label: {
+                            Text(showDoneList ? "Hide Completed" : "Show Completed")
+                            Image(systemName: showDoneList ? "eye.slash" : "eye")
+                        })
+                            .disabled(sort == 2)
+                    } label: {
+                        Label("", systemImage: "ellipsis.circle")
                     }
-                    )
                 }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
+                
             }
+            .environment(\.editMode, self.$editMode)
+            // MARK: - Notification
             .onReceive(pub) { data in
                 if let content = (data.object as? UNNotificationContent){
                     self.notificationContent = content
@@ -71,6 +164,8 @@ struct NoteListView: View {
             }
         }
     }
+    
+    // MARK: - Functions
     private func binding(for note: Notes) -> Binding<Notes> {
         guard let noteIndex = notes.firstIndex(where: {$0.id == note.id}) else {
             fatalError("Can't find note in array")
@@ -78,29 +173,23 @@ struct NoteListView: View {
         return $notes[noteIndex]
     }
     
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteItems(at offsets: IndexSet) {
         withAnimation {
             notes.remove(atOffsets: offsets)
         }
         
     }
     
-    private func onMove(source: IndexSet, destination: Int) {
+//    private func deleteItem(at indexSet: IndexSet) {
+//        self.notes.remove(atOffsets: indexSet)
+//    }
+    
+    private func removeItem(for id: UUID) {
+        self.notes.removeAll(where: {$0.id == id})
+    }
+    
+    private func moveRows(source: IndexSet, destination: Int) {
         notes.move(fromOffsets: source, toOffset: destination)
     }
     
 }
-
-
-/*
- 
- ForEach(notes) { note in
- NavigationLink(destination: DetailNote(note: binding(for: note))) {
- NoteRow(note: note)
- }
- }
- .onDelete(perform: deleteItems)
- .onMove(perform: onMove)
- 
- 
- */

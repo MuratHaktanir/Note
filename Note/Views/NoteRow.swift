@@ -41,16 +41,29 @@ struct NoteRow: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .animation(.default, value: note.notifyDay)
                 }
             }else {
                 if note.detail.isEmpty {
                     VStack(alignment:.leading, spacing: 5) {
-                        Text(note.title)
+                        HStack {
+                            Text(note.title)
+                            Spacer()
+                            Text(note.isComplete ? "Done" : "Not yet")
+                                .font(.footnote)
+                                .foregroundColor(note.isComplete ? .green : .red)
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                 }else {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(note.title)
+                        HStack {
+                            Text(note.title)
+                            Spacer()
+                            Text(note.isComplete ? "Done" : "Not yet")
+                                .font(.footnote)
+                                .foregroundColor(note.isComplete ? .green : .red)
+                        }
                         HStack {
                             Text(note.detail)
                                 .font(.footnote)

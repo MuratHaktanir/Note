@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Notes
 struct Notes: Codable, Identifiable {
-    
+
     let id: UUID
     var title: String
     var detail: String
@@ -84,3 +84,4 @@ extension Notes {
         isComplete = data.isComplete
     }
 }
+

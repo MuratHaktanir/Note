@@ -26,7 +26,7 @@ final class NoteData: ObservableObject {
     }
     
     @Published var notesModel: [Notes] = []
-    
+
     
     func load() {
         DispatchQueue.global(qos: .background).async { [weak self] in

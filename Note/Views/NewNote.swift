@@ -12,8 +12,11 @@ struct NewNote: View {
     @Binding var newTitle: Notes.Data
     @State var dayTapped = false
     @State var timeTapped = false
+    @Environment(\.colorScheme) var colorScheme
     // MARK: - Body
     var body: some View {
+        ZStack {
+//            Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea()
         Form {
             Section(header: Text("Taking note")) {
                 TextField("Add a note", text: $newTitle.title)
@@ -113,6 +116,7 @@ struct NewNote: View {
         .zIndex(1)
         .navigationTitle(newTitle.title.isEmpty ? "Note title" : newTitle.title)
         .navigationBarTitleDisplayMode(.inline)
+    }
     }
     
     private var dateFormatter: DateFormatter {

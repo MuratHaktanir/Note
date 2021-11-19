@@ -12,6 +12,7 @@ struct DetailNote: View {
     @Binding var note: Notes
     @State private var notificationContent : UNNotificationContent?
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.colorScheme) var colorScheme
     // MARK: - Body
     var body: some View {
         
@@ -39,7 +40,9 @@ struct DetailNote: View {
                         Button(action: {
                             withAnimation {
                                 self.note.isComplete.toggle()
-                                self.presentationMode.wrappedValue.dismiss()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    self.presentationMode.wrappedValue.dismiss()
+                                }
                             }
                         }, label: {
                             Image(systemName: note.isComplete ? "checkmark.circle" : "circle")
@@ -47,6 +50,12 @@ struct DetailNote: View {
                                 .font(.title3)
                         })
                             .buttonStyle(PlainButtonStyle())
+                        
+                        Text(note.isComplete ? "Completed." : "Not yet.")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(note.isComplete ? .green : .red)
+                        
                         Spacer()
                         Button("Reschedule") {
                             let calendar = Calendar.current
@@ -70,7 +79,7 @@ struct DetailNote: View {
                     
                 }
             }
-        
+            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
     }
 }
 // MARK: - Preview
