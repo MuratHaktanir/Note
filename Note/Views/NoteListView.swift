@@ -17,15 +17,15 @@ struct NoteListView: View {
     @State                      private var notificationContent : UNNotificationContent?
     
     @AppStorage("sort")                 var sort                = 0
-    @State                      private var showDoneList        = false
+    @AppStorage("showDoneList") private var showDoneList        = false
     @State                      private var sortByTitle         = false
     @State                      private var sortByManual        = true
     @State                      private var everyNote           = false
     @State                              var editMode: EditMode  = .inactive
-                                        var sortTitle           : [Notes] {
-                                            get { notes.sorted(by: {$0.title < $1.title})}
-                                            set { notes = newValue}
-                                        }
+    var sortTitle           : [Notes] {
+        get { notes.sorted(by: {$0.title < $1.title})}
+        set { notes = newValue}
+    }
     
     
     // MARK: - Body
@@ -35,60 +35,74 @@ struct NoteListView: View {
         let pub = NotificationCenter.default.publisher(
             for: Notification.Name(notiName))
         
-//        UITableView.appearance().backgroundColor = .clear // tableview background
-//        UITableViewCell.appearance().backgroundColor = .clear // cell background
-
+        //        UITableView.appearance().backgroundColor = .clear // tableview background
+        //        UITableViewCell.appearance().backgroundColor = .clear // cell background
+        
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .bottom)) {
             List {
                 if sort == 0 {
                     Section(header: Text("Sort by Manual")) {
                         ForEach(notes) { note in
-                            if showDoneList {
-                                if note.isComplete {
-                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                        NoteRow(note: note)
-                                    }
-                                    
-                                }
-                                    
-                            }else {
-                                if note.isComplete == false {
-                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                        NoteRow(note: note)
-                                    }
+                            if note.isComplete == false {
+                                NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                    NoteRow(note: note)
                                 }
                             }
                         }
-//                        .onDelete(perform: deleteItems)
                         .onDelete { (index) in
                             guard let firstIndex = index.first else {return}
                             self.removeItem(for: notes[firstIndex].id)
                         }
                         .onMove(perform: moveRows)
                     }
+                    if showDoneList {
+                        withAnimation {
+                            Section(header: Text("Completed Items")) {
+                                ForEach(notes) { note in
+                                    if note.isComplete == true {
+                                        NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                            NoteRow(note: note)
+                                        }
+                                    }
+                                }
+                                .onDelete { (index) in
+                                    guard let firstIndex = index.first else {return}
+                                    self.removeItem(for: notes[firstIndex].id)
+                                }
+                                .onMove(perform: moveRows)
+                            }
+                        }
+                    }
                 }
                 if sort == 1 {
                     Section(header: Text("Sort by Title")) {
                         ForEach(sortTitle) { note in
-                            if showDoneList {
-                                if note.isComplete {
-                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                        NoteRow(note: note)
-                                    }
-                                }
-                            }else {
-                                if note.isComplete == false {
-                                    NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                        NoteRow(note: note)
-                                    }
-                                    
+                            if note.isComplete == false {
+                                NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                    NoteRow(note: note)
                                 }
                             }
                         }
-//                        .onDelete(perform: deleteItems)
                         .onDelete { (index) in
                             guard let firstIndex = index.first else {return}
                             self.removeItem(for: notes[firstIndex].id)
+                        }
+                    }
+                    if showDoneList {
+                        withAnimation {
+                            Section(header: Text("Completed Items")) {
+                                ForEach(sortTitle) { note in
+                                    if note.isComplete == true {
+                                        NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                            NoteRow(note: note)
+                                        }
+                                    }
+                                }
+                                .onDelete { (index) in
+                                    guard let firstIndex = index.first else {return}
+                                    self.removeItem(for: notes[firstIndex].id)
+                                }
+                            }
                         }
                     }
                 }
@@ -96,23 +110,41 @@ struct NoteListView: View {
                 if sort == 2 {
                     Section(header: Text("All notes")) {
                         ForEach(sortTitle) { note in
-                            NavigationLink(destination: DetailNote(note: binding(for: note))) {
-                                NoteRow(note: note)
+                            if note.isComplete == false {
+                                NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                    NoteRow(note: note)
+                                }
                             }
                         }
-//                        .onDelete(perform: self.deleteItems)
                         .onDelete { (index) in
                             guard let firstIndex = index.first else {return}
                             self.removeItem(for: notes[firstIndex].id)
                         }
                     }
+                    if showDoneList {
+                        withAnimation {
+                            Section(header: Text("Completed Items")) {
+                                ForEach(sortTitle) { note in
+                                    if note.isComplete == true {
+                                        NavigationLink(destination: DetailNote(note: binding(for: note))) {
+                                            NoteRow(note: note)
+                                        }
+                                    }
+                                }
+                                .onDelete { (index) in
+                                    guard let firstIndex = index.first else {return}
+                                    self.removeItem(for: notes[firstIndex].id)
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            .animation(.default, value: sort)
+//            .animation(.default, value: sort)
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Notes")
             .listRowBackground(Color.primary)
-//            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
+            //            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
             // MARK: - Toolbar
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -143,7 +175,7 @@ struct NoteListView: View {
                             Text(showDoneList ? "Hide Completed" : "Show Completed")
                             Image(systemName: showDoneList ? "eye.slash" : "eye")
                         })
-                            .disabled(sort == 2)
+//                            .disabled(sort == 2)
                     } label: {
                         Label("", systemImage: "ellipsis.circle")
                     }
@@ -180,9 +212,9 @@ struct NoteListView: View {
         
     }
     
-//    private func deleteItem(at indexSet: IndexSet) {
-//        self.notes.remove(atOffsets: indexSet)
-//    }
+    //    private func deleteItem(at indexSet: IndexSet) {
+    //        self.notes.remove(atOffsets: indexSet)
+    //    }
     
     private func removeItem(for id: UUID) {
         self.notes.removeAll(where: {$0.id == id})
@@ -193,3 +225,32 @@ struct NoteListView: View {
     }
     
 }
+
+/*
+ 
+ Section(header: Text("Sort by Manual")) {
+ ForEach(notes) { note in
+ if showDoneList {
+ if note.isComplete {
+ NavigationLink(destination: DetailNote(note: binding(for: note))) {
+ NoteRow(note: note)
+ }
+ 
+ }
+ 
+ }else {
+ if note.isComplete == false {
+ NavigationLink(destination: DetailNote(note: binding(for: note))) {
+ NoteRow(note: note)
+ }
+ }
+ }
+ }
+ //                        .onDelete(perform: deleteItems)
+ .onDelete { (index) in
+ guard let firstIndex = index.first else {return}
+ self.removeItem(for: notes[firstIndex].id)
+ }
+ .onMove(perform: moveRows)
+ }
+ */

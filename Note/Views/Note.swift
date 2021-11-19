@@ -34,6 +34,7 @@ struct Note: View {
                     EmptyNoteView(isPresented: $isPresented, newTitle: $newTitle, notes: $notes)
                 }else {
                     NoteListView(notes: $notes, isPresented: $isPresented, newTitle: $newTitle)
+//                    oldlist(notes: $notes, isPresented: $isPresented, newTitle: $newTitle)
                     
                     // MARK: - NewNote Button
                     Button(action: {
