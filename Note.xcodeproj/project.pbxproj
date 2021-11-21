@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EA3760AD27479B3D0000AD2C /* oldlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3760AC27479B3D0000AD2C /* oldlist.swift */; };
+		EA932EDF2747C72400C2F5BD /* LaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA932EDE2747C72400C2F5BD /* LaunchView.swift */; };
+		EA932EE12747CEC400C2F5BD /* DismissKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA932EE02747CEC400C2F5BD /* DismissKeyboard.swift */; };
 		EAC4AF642740429600334DF9 /* NoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC4AF632740429600334DF9 /* NoteApp.swift */; };
 		EAC4AF662740429600334DF9 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC4AF652740429600334DF9 /* Note.swift */; };
 		EAC4AF682740429600334DF9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC4AF672740429600334DF9 /* Assets.xcassets */; };
@@ -23,7 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		EA3760AC27479B3D0000AD2C /* oldlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = oldlist.swift; sourceTree = "<group>"; };
+		EA932EDE2747C72400C2F5BD /* LaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchView.swift; sourceTree = "<group>"; };
+		EA932EE02747CEC400C2F5BD /* DismissKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissKeyboard.swift; sourceTree = "<group>"; };
 		EAC4AF602740429600334DF9 /* Note.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Note.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAC4AF632740429600334DF9 /* NoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteApp.swift; sourceTree = "<group>"; };
 		EAC4AF652740429600334DF9 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
@@ -92,11 +94,12 @@
 			children = (
 				EAEB19102742CF290090ECF7 /* DetailNote.swift */,
 				EAEB19022742C8890090ECF7 /* EmptyNoteView.swift */,
+				EA932EDE2747C72400C2F5BD /* LaunchView.swift */,
 				EAC4AF652740429600334DF9 /* Note.swift */,
 				EAEB190C2742CDB70090ECF7 /* NoteRow.swift */,
 				EAEB190E2742CE880090ECF7 /* NewNote.swift */,
 				EAEB19062742CB2A0090ECF7 /* NoteListView.swift */,
-				EA3760AC27479B3D0000AD2C /* oldlist.swift */,
+				EA932EE02747CEC400C2F5BD /* DismissKeyboard.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -189,10 +192,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAEB19112742CF290090ECF7 /* DetailNote.swift in Sources */,
+				EA932EDF2747C72400C2F5BD /* LaunchView.swift in Sources */,
 				EAC4AF662740429600334DF9 /* Note.swift in Sources */,
-				EA3760AD27479B3D0000AD2C /* oldlist.swift in Sources */,
 				EAEB190B2742CD6F0090ECF7 /* NoteData.swift in Sources */,
 				EAF89AE1274261E2008D652F /* NotificationHandler.swift in Sources */,
+				EA932EE12747CEC400C2F5BD /* DismissKeyboard.swift in Sources */,
 				EAEB19072742CB2A0090ECF7 /* NoteListView.swift in Sources */,
 				EAEB19032742C8890090ECF7 /* EmptyNoteView.swift in Sources */,
 				EAC4AF642740429600334DF9 /* NoteApp.swift in Sources */,

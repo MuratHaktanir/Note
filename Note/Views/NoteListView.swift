@@ -14,6 +14,7 @@ struct NoteListView: View {
     @Binding                            var notes               : [Notes]
     @Binding                            var isPresented         : Bool
     @Binding                            var newTitle            : Notes.Data
+    
     @State                      private var notificationContent : UNNotificationContent?
     
     @AppStorage("sort")                 var sort                = 0
@@ -22,12 +23,18 @@ struct NoteListView: View {
     @State                      private var sortByManual        = true
     @State                      private var everyNote           = false
     @State                              var editMode: EditMode  = .inactive
+    @State                              var searchtxt           = ""
+    @State                      private var updatedNotes: [Notes] = []
     var sortTitle           : [Notes] {
         get { notes.sorted(by: {$0.title < $1.title})}
         set { notes = newValue}
     }
     
-    
+//    var deneme: [Notes] {
+//        get { notes.filter{ $0.title = $1.title}}
+//        set { notes = newValue}
+//    }
+
     // MARK: - Body
     var body: some View {
         
@@ -42,10 +49,11 @@ struct NoteListView: View {
             List {
                 if sort == 0 {
                     Section(header: Text("Sort by Manual")) {
-                        ForEach(notes) { note in
+                        ForEach(searchtxt == "" ? notes : updatedNotes) { note in
                             if note.isComplete == false {
                                 NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                     NoteRow(note: note)
+//                                        .searchable(text: $searchtxt)
                                 }
                             }
                         }
@@ -58,10 +66,11 @@ struct NoteListView: View {
                     if showDoneList {
                         withAnimation {
                             Section(header: Text("Completed Items")) {
-                                ForEach(notes) { note in
+                                ForEach(searchtxt == "" ? notes : updatedNotes) { note in
                                     if note.isComplete == true {
                                         NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                             NoteRow(note: note)
+//                                                .searchable(text: $searchtxt)
                                         }
                                     }
                                 }
@@ -76,10 +85,11 @@ struct NoteListView: View {
                 }
                 if sort == 1 {
                     Section(header: Text("Sort by Title")) {
-                        ForEach(sortTitle) { note in
+                        ForEach(searchtxt == "" ? sortTitle : updatedNotes) { note in
                             if note.isComplete == false {
                                 NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                     NoteRow(note: note)
+//                                        .searchable(text: $searchtxt)
                                 }
                             }
                         }
@@ -91,10 +101,11 @@ struct NoteListView: View {
                     if showDoneList {
                         withAnimation {
                             Section(header: Text("Completed Items")) {
-                                ForEach(sortTitle) { note in
+                                ForEach(searchtxt == "" ? sortTitle : updatedNotes) { note in
                                     if note.isComplete == true {
                                         NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                             NoteRow(note: note)
+//                                                .searchable(text: $searchtxt)
                                         }
                                     }
                                 }
@@ -109,10 +120,11 @@ struct NoteListView: View {
                 
                 if sort == 2 {
                     Section(header: Text("All notes")) {
-                        ForEach(sortTitle) { note in
+                        ForEach(searchtxt == "" ? sortTitle : updatedNotes) { note in
                             if note.isComplete == false {
                                 NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                     NoteRow(note: note)
+//                                        .searchable(text: $searchtxt)
                                 }
                             }
                         }
@@ -124,10 +136,11 @@ struct NoteListView: View {
                     if showDoneList {
                         withAnimation {
                             Section(header: Text("Completed Items")) {
-                                ForEach(sortTitle) { note in
+                                ForEach(searchtxt == "" ? sortTitle : updatedNotes) { note in
                                     if note.isComplete == true {
                                         NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                             NoteRow(note: note)
+//                                                .searchable(text: $searchtxt)
                                         }
                                     }
                                 }
@@ -140,16 +153,24 @@ struct NoteListView: View {
                     }
                 }
             }
-//            .animation(.default, value: sort)
+            .animation(.default, value: sort)
             .listStyle(InsetGroupedListStyle())
             .navigationTitle("Notes")
             .listRowBackground(Color.primary)
             //            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
+            
+            // Mark: - Searchbar
+            .searchable(text: $searchtxt, prompt: "Find your note.")
+            .onChange(of: searchtxt, perform: { searchValue in
+                updatedNotes = notes.filter {$0.title.contains(searchtxt)}
+            })
             // MARK: - Toolbar
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
+                        EditButton()
                         Menu {
+                            
                             Picker("", selection: $sort) {
                                 Button(action: {
                                     sortByManual.toggle()
@@ -181,9 +202,9 @@ struct NoteListView: View {
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarLeading) {
-                    EditButton()
-                }
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    EditButton()
+//                }
                 
             }
             .environment(\.editMode, self.$editMode)
@@ -212,10 +233,6 @@ struct NoteListView: View {
         
     }
     
-    //    private func deleteItem(at indexSet: IndexSet) {
-    //        self.notes.remove(atOffsets: indexSet)
-    //    }
-    
     private func removeItem(for id: UUID) {
         self.notes.removeAll(where: {$0.id == id})
     }
@@ -224,33 +241,6 @@ struct NoteListView: View {
         notes.move(fromOffsets: source, toOffset: destination)
     }
     
-}
 
-/*
- 
- Section(header: Text("Sort by Manual")) {
- ForEach(notes) { note in
- if showDoneList {
- if note.isComplete {
- NavigationLink(destination: DetailNote(note: binding(for: note))) {
- NoteRow(note: note)
- }
- 
- }
- 
- }else {
- if note.isComplete == false {
- NavigationLink(destination: DetailNote(note: binding(for: note))) {
- NoteRow(note: note)
- }
- }
- }
- }
- //                        .onDelete(perform: deleteItems)
- .onDelete { (index) in
- guard let firstIndex = index.first else {return}
- self.removeItem(for: notes[firstIndex].id)
- }
- .onMove(perform: moveRows)
- }
- */
+
+}

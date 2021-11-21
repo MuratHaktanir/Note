@@ -24,7 +24,7 @@ struct NewNote: View {
                     .foregroundColor(.secondary)
                     .font(.callout)
             }
-            
+            .modifier(DismissingKeyboard())
             Section(header: Text("Calendar & Time")) {
                 
                 Toggle(isOn: $newTitle.notifyDay) {
@@ -112,6 +112,7 @@ struct NewNote: View {
                         .labelsHidden()
                 }
             }
+            
         }
         .zIndex(1)
         .navigationTitle(newTitle.title.isEmpty ? "Note title" : newTitle.title)
