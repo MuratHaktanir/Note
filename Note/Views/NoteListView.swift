@@ -8,6 +8,8 @@
 import UserNotifications
 import SwiftUI
 
+
+@available(iOS 15.0, *)
 struct NoteListView: View {
     // MARK: - Properties
     @Environment(\.colorScheme)         var colorScheme
@@ -25,16 +27,12 @@ struct NoteListView: View {
     @State                              var editMode: EditMode  = .inactive
     @State                              var searchtxt           = ""
     @State                      private var updatedNotes: [Notes] = []
+    @StateObject                        var delegate = NotificationHandler()
     var sortTitle           : [Notes] {
         get { notes.sorted(by: {$0.title < $1.title})}
         set { notes = newValue}
     }
     
-//    var deneme: [Notes] {
-//        get { notes.filter{ $0.title = $1.title}}
-//        set { notes = newValue}
-//    }
-
     // MARK: - Body
     var body: some View {
         
@@ -53,7 +51,7 @@ struct NoteListView: View {
                             if note.isComplete == false {
                                 NavigationLink(destination: DetailNote(note: binding(for: note))) {
                                     NoteRow(note: note)
-//                                        .searchable(text: $searchtxt)
+
                                 }
                             }
                         }
@@ -153,12 +151,10 @@ struct NoteListView: View {
                     }
                 }
             }
-            .animation(.default, value: sort)
-            .listStyle(InsetGroupedListStyle())
+//            .animation(.default, value: sort)
             .navigationTitle("Notes")
             .listRowBackground(Color.primary)
             //            .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
-            
             // Mark: - Searchbar
             .searchable(text: $searchtxt, prompt: "Find your note.")
             .onChange(of: searchtxt, perform: { searchValue in
@@ -201,11 +197,6 @@ struct NoteListView: View {
                         Label("", systemImage: "ellipsis.circle")
                     }
                 }
-                
-//                ToolbarItem(placement: .navigationBarLeading) {
-//                    EditButton()
-//                }
-                
             }
             .environment(\.editMode, self.$editMode)
             // MARK: - Notification
@@ -215,6 +206,7 @@ struct NoteListView: View {
                     
                 }
             }
+
         }
     }
     

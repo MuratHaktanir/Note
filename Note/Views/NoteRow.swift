@@ -84,15 +84,7 @@ struct NoteRow: View {
         df.doesRelativeDateFormatting = true
         
         return df
-    }
-    
-    //    private func isComplete(for note: Notes) -> Binding<Notes> {
-    //        guard let noteIndex = notes.firstIndex(where: {$0.isComplete == note.isComplete}) else {
-    //            fatalError("Can't find note in array")
-    //        }
-    //        return $notes[noteIndex]
-    //    }
-    
+    }    
 }
 // MARK: - Preview
 struct NoteRow_Previews: PreviewProvider {

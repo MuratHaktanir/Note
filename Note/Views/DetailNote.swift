@@ -15,6 +15,7 @@ struct DetailNote: View {
     @Environment(\.colorScheme) var colorScheme
     @State var dayTapped = false
     @State var timeTapped = false
+
     // MARK: - Body
     var body: some View {
         
@@ -27,33 +28,6 @@ struct DetailNote: View {
                     TextField("Your note", text: $note.title)
                     TextEditor(text: $note.detail)
                         .foregroundColor(.secondary)
-                    HStack{
-                        Spacer()
-                        Button(action: {
-                            withAnimation {
-                                self.note.isComplete.toggle()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                    self.presentationMode.wrappedValue.dismiss()
-                                }
-                            }
-                        }, label: {
-                            Image(systemName: note.isComplete ? "checkmark.circle" : "circle")
-                                .foregroundColor(note.isComplete ? .green : .red)
-                                .font(.title)
-                        })
-                            .buttonStyle(PlainButtonStyle())
-                        
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text("Complete?")
-                                .font(.footnote)
-                            Text(note.isComplete ? "Completed." : "Not yet.")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                            .foregroundColor(note.isComplete ? .green : .red)
-                        }
-                        
-                        
-                    }
                 }
                 .modifier(DismissingKeyboard())
                     Section(header: Text("Calendar & Time")) {
@@ -144,6 +118,27 @@ struct DetailNote: View {
                         }
                         
                         HStack {
+                            Button(action: {
+                                withAnimation {
+                                    self.note.isComplete.toggle()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                        self.presentationMode.wrappedValue.dismiss()
+                                    }
+                                }
+                            }, label: {
+                                Image(systemName: note.isComplete ? "checkmark.circle" : "circle")
+                                    .foregroundColor(note.isComplete ? .green : .red)
+                                    .font(.title2)
+                            })
+                                .buttonStyle(PlainButtonStyle())
+                            
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(note.isComplete ? "Note completed." : "Not yet.")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(note.isComplete ? .green : .red)
+                                    .zIndex(1)
+                            }
                             Spacer()
                             Button("Reschedule") {
                                 let calendar = Calendar.current
@@ -155,6 +150,7 @@ struct DetailNote: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .foregroundColor(.blue)
+
                         }
                     }
                 
@@ -169,6 +165,7 @@ struct DetailNote: View {
                 }
             }
             .background(Color(colorScheme == .light ? .systemFill : .opaqueSeparator).ignoresSafeArea())
+            
     }
     private var dateFormatter: DateFormatter {
         let df = DateFormatter()
@@ -190,7 +187,9 @@ struct DetailNote_Previews: PreviewProvider {
             day: Date(),
             time: Date(),
             notifyDay: true,
-            notifyTime: true, isComplete: false)))
+            notifyTime: true,
+            isComplete: false)))
+//            .preferredColorScheme(.dark)
     }
 }
 

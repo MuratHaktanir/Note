@@ -7,13 +7,14 @@
 
 import Foundation
 import UserNotifications
+import UIKit
 
 
-class NotificationHandler : NSObject, UNUserNotificationCenterDelegate {
+class NotificationHandler : NSObject, UNUserNotificationCenterDelegate, ObservableObject {
     
     
     static let shared = NotificationHandler()
-    
+    @Published var alert = false
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
        
@@ -37,10 +38,15 @@ class NotificationHandler : NSObject, UNUserNotificationCenterDelegate {
         
         NotificationCenter.default.post(name:notiName , object: notification.request.content)
         
-        completionHandler(.sound)
-  
+        completionHandler([.badge, .banner, .sound, .list])
     }
-   
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHanler completionHandler: @escaping () -> Void) {
+        if response.actionIdentifier == "Reply" {
+            self.alert.toggle()
+        }
+        completionHandler()
+    }
     
 }
 
@@ -80,15 +86,24 @@ extension NotificationHandler  {
     }
     
     
-    func addNotification(id : String, title : String, subtitle : String , sound : UNNotificationSound = UNNotificationSound.default, trigger : UNNotificationTrigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)) {
+    func addNotification(id : String, title : String, subtitle : String , sound : UNNotificationSound = UNNotificationSound.default, trigger : UNNotificationTrigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: true)) {
+        
+        let badgeNumber = UIApplication.shared.applicationIconBadgeNumber + 1 as NSNumber
         
         let content = UNMutableNotificationContent()
         content.title = title
         content.subtitle = subtitle
-        
+        content.badge = badgeNumber
         content.sound = sound
-
+        content.categoryIdentifier = "Actions"
+        
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        
+        let close = UNNotificationAction(identifier: "close", title: "Close", options: .destructive)
+        let reply = UNNotificationAction(identifier: "reply", title: "Reply", options: .foreground)
+        
+        let category = UNNotificationCategory(identifier: "Actions", actions: [close, reply], intentIdentifiers: [], options: [])
+        UNUserNotificationCenter.current().setNotificationCategories([category])
 
         UNUserNotificationCenter.current().add(request)
     }

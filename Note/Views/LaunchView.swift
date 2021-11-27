@@ -29,7 +29,7 @@ struct LaunchView: View {
     }
     func fakeLoading() {
         isLoading = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             isLoading = false
         }
     }
